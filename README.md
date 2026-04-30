@@ -1,120 +1,93 @@
 # 🖥️ System Operations Monitoring Platform
 
-A real-time **system monitoring dashboard** built with **Laravel + Vue 3 (Inertia.js)** featuring live metrics, log streaming, charts, and filtering capabilities.
+A real-time system monitoring dashboard built with Laravel + Vue 3 (Inertia.js) featuring live metrics, log streaming, charts, and filtering capabilities.
 
 ---
 
 ## 🚀 Project Overview
 
-This project simulates a **server monitoring system** that displays:
+This project simulates a server monitoring system that displays:
 
-- CPU usage
-- Memory usage
-- Active users
-- System alerts
-- Live logs
-- Historical performance charts
-
-It is designed as a **portfolio-grade system dashboard** with scalable architecture for real-time monitoring systems.
+- CPU usage  
+- Memory usage  
+- Active users  
+- System alerts  
+- Live logs  
+- Historical performance charts  
 
 ---
 
 ## 🧠 System Architecture
 
-
-Laravel Backend
-↓
-REST API + Broadcasting Events
-↓
-Inertia.js Bridge
-↓
-Vue 3 Frontend Dashboard
-↓
-Chart.js + Reactive UI
-
+Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue 3 Frontend Dashboard → Chart.js + Reactive UI  
 
 ---
 
 ## ✨ Features
 
 ### 📊 System Monitoring
-- CPU Usage tracking
-- Memory usage tracking
-- Active user count
-- Server status indicator
-- System alerts
-
----
+- CPU Usage tracking  
+- Memory usage tracking  
+- Active user count  
+- Server status indicator  
+- System alerts  
 
 ### 📈 Data Visualization
-- Real-time line chart (Chart.js)
-- CPU history tracking
-- Memory history tracking
-- Auto-updating graph every few seconds
-
----
+- Real-time line chart (Chart.js)  
+- CPU history tracking  
+- Memory history tracking  
+- Auto-updating graph every few seconds  
 
 ### 📜 Live Logs System
-- Live system logs feed
-- Auto-refresh polling system
-- Color-coded logs:
-  - 🟢 INFO
-  - 🟡 WARNING
-  - 🔴 ERROR
-
----
+- Live system logs feed  
+- Auto-refresh polling system  
+- Color-coded logs (INFO / WARNING / ERROR)  
 
 ### 🔍 Log Filtering System
-- Filter by log level
-- Search logs by keyword
-- Combined filtering (AND logic)
-
----
-
-### 🔄 Real-Time Updates
-- Axios polling system (3-second interval)
-- Optional Laravel broadcasting support (Pusher / Soketi ready structure)
+- Filter by log level  
+- Search logs by keyword  
+- Combined filtering  
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
+**Backend**
 - Laravel 10+
-- Laravel Broadcasting (Events)
-- REST API Controllers
+- Broadcasting (Events)
+- REST API
 
-### Frontend
+**Frontend**
 - Vue 3 (Composition API)
 - Inertia.js
 - Axios
 - Chart.js
 
-### Styling
-- Tailwind CSS
+**Styling**
+- Tailwind CSS  
 
 ---
 
 ## 📁 Project Structure
 
-
+```txt
 app/
 ├── Http/
-│ ├── Controllers/
-│ │ ├── SystemDashboardController.php
-│ │ ├── LogController.php
+│   ├── Controllers/
+│   │   ├── SystemDashboardController.php
+│   │   ├── LogController.php
 │
 ├── Events/
-│ ├── LogCreated.php
+│   ├── LogCreated.php
 
 resources/
 ├── js/
-│ ├── Pages/
-│ │ ├── Dashboard.vue
-│ ├── Components/
-│ ├── SystemCard.vue
-│ ├── bootstrap.js
-│ ├── app.js
+│   ├── Pages/
+│   │   ├── Dashboard.vue
+│   ├── Components/
+│   │   ├── SystemCard.vue
+│   ├── bootstrap.js
+│   ├── app.js
 
 
 ---
@@ -169,7 +142,7 @@ class LogCreated implements ShouldBroadcast
         return 'log.created';
     }
 }
-🧩 Frontend Dashboard Logic
+#🧩 Frontend Dashboard Logic
 Core Features:
 Reactive state using ref()
 Computed filtering system
@@ -181,7 +154,7 @@ Auto-refresh system data
 Dynamic chart updates
 Live log feed
 Search + filter logs
-📊 Chart System
+#📊 Chart System
 Library: Chart.js
 Type: Line chart
 Data:
@@ -190,7 +163,7 @@ Memory usage history
 Updates every 3 seconds
 🔍 Filtering System Logic
 
-Logs are filtered using:
+#Logs are filtered using:
 
 Log level (ALL / INFO / WARNING / ERROR)
 Keyword search
