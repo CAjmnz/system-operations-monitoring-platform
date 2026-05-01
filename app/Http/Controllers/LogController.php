@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
-
 class LogController extends Controller
 {
     public function index()
     {
-        Log::info('System log fetched');
+        $logs = [
+            ['level' => 'INFO', 'message' => 'System started successfully'],
+            ['level' => 'WARNING', 'message' => 'CPU usage increasing'],
+            ['level' => 'ERROR', 'message' => 'Disk read latency detected'],
+            ['level' => 'INFO', 'message' => 'User login detected'],
+        ];
 
         return response()->json([
-            'logs' => [
-                '[INFO] System running',
-                '[INFO] CPU stable',
-                '[WARNING] Memory usage moderate',
-                '[INFO] Active users normal',
-                '[INFO] System healthy',
-            ]
+            'logs' => $logs
         ]);
     }
 }

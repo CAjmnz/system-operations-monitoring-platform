@@ -2,24 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\System\Monitoring\SystemMetricService;
-
 class SystemDashboardController extends Controller
 {
-    public function __construct(
-        protected SystemMetricService $metrics
-    ) {}
-
     public function index()
     {
         return response()->json([
             'server_status' => 'Online',
-            'cpu_usage' => $this->metrics->getCpuUsage(),
-            'memory_usage' => $this->metrics->getMemoryUsage(),
-            'active_users' => 12,
-            'alerts' => 'System Running Normally'
+            'cpu_usage' => rand(10, 80),
+            'memory_usage' => rand(20, 90),
+            'active_users' => rand(5, 30),
+            'alerts' => 'System Running Normally',
         ]);
     }
 }
-

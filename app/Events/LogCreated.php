@@ -4,22 +4,23 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 
 class LogCreated implements ShouldBroadcast
 {
-    use Dispatchable, SerializesModels;
+    public $message;
 
-    public $log;
-
-    public function __construct($log)
+    public function __construct($message)
     {
-        $this->log = $log;
+        $this->message = $message;
     }
 
     public function broadcastOn()
     {
-        return new Channel('system-logs');
+        return new Channel('logs');
+    }
+
+    public function broadcastAs()
+    {
+        return 'log.created';
     }
 }
