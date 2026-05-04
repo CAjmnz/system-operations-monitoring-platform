@@ -186,7 +186,7 @@ class LogCreated implements ShouldBroadcast
  
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-repo.git
+git clone https://github.com/CAjmnz/system-operations-monitoring-platform.git
 cd your-repo
  
 # 2. Install dependencies
