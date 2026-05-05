@@ -1,26 +1,54 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SystemDashboardController;
-use App\Http\Controllers\LogController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\SystemDashboardController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\ProfileController;
 
+/*
+|--------------------------------------------------------------------------
+| INERTIA PAGES (FRONTEND ROUTES)
+|--------------------------------------------------------------------------
+*/
+
+// Welcome page
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => app()->version(),
+        'phpVersion' => PHP_VERSION,
+    ]);
 });
 
+// Dashboard page (cards default page)
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/system/dashboard', [SystemDashboardController::class, 'index']);
-Route::get('/system/logs', [LogController::class, 'index']);
+// System logs page (Vue page)
+Route::get('/system/logs', function () {
+    return Inertia::render('SystemLogs');
+})->middleware(['auth'])->name('logs.page');
+Route::get('/system/usage', function () {
+    return Inertia::render('SystemUsage');
+})->middleware(['auth'])->name('usage.page');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit']);
-    Route::patch('/profile', [ProfileController::class, 'update']);
-    Route::delete('/profile', [ProfileController::class, 'destroy']);
-});
+
+/*
+|--------------------------------------------------------------------------
+| API ROUTES (FOR AXIOS)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/api/logs', [LogController::class, 'index']);
+Route::get('/system/dashboard', [SystemDashboardController::class, 'index']);
+
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';
