@@ -163,7 +163,7 @@ class LogCreated implements ShouldBroadcast
 - Keyword search
 - Driven by a reactive computed property
 ---
- 
+  
 ## ⚠️ Known Limitations
  
 - Uses polling instead of full WebSockets (upgrade path is ready)
