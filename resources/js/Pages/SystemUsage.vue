@@ -1,8 +1,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
-import Navbar from '@/Components/Navbar.vue'
 import Chart from 'chart.js/auto'
+import AppLayout from '@/Layouts/AppLayout.vue'
+
+defineOptions({
+    layout: AppLayout
+})
 
 // ================= STATE =================
 const cpuHistory = ref([])
@@ -20,14 +24,17 @@ const fetchData = async () => {
         const cpu = Number(res.data.cpu_usage)
         const mem = Number(res.data.memory_usage)
 
-        if (!isNaN(cpu)) cpuHistory.value.push(cpu)
-        if (!isNaN(mem)) memoryHistory.value.push(mem)
+        // IMMUTABLE UPDATE (SAFE FOR VUE + CHART.JS)
+        if (!isNaN(cpu)) {
+            cpuHistory.value = [...cpuHistory.value, cpu].slice(-10)
+        }
 
-        // keep last 10 points
-        if (cpuHistory.value.length > 10) cpuHistory.value.shift()
-        if (memoryHistory.value.length > 10) memoryHistory.value.shift()
+        if (!isNaN(mem)) {
+            memoryHistory.value = [...memoryHistory.value, mem].slice(-10)
+        }
 
         updateChart()
+
     } catch (err) {
         console.error('System usage fetch error:', err)
     }
@@ -37,12 +44,15 @@ const fetchData = async () => {
 const updateChart = () => {
     if (!chartInstance) return
 
-    chartInstance.data.labels = cpuHistory.value.map((_, i) => i + 1)
+    const cpuData = cpuHistory.value.slice()
+    const memData = memoryHistory.value.slice()
 
-    chartInstance.data.datasets[0].data = cpuHistory.value
-    chartInstance.data.datasets[1].data = memoryHistory.value
+    chartInstance.data.labels = cpuData.map((_, i) => i + 1)
 
-    chartInstance.update('none')
+    chartInstance.data.datasets[0].data = [...cpuData]
+    chartInstance.data.datasets[1].data = [...memData]
+
+    chartInstance.update()
 }
 
 // ================= INIT CHART =================
@@ -95,36 +105,34 @@ const initChart = () => {
 // ================= LIFECYCLE =================
 onMounted(() => {
     initChart()
-
     fetchData()
     interval = setInterval(fetchData, 3000)
 })
 
 onUnmounted(() => {
     clearInterval(interval)
-    if (chartInstance) chartInstance.destroy()
+    if (chartInstance) {
+        chartInstance.destroy()
+        chartInstance = null
+    }
 })
 </script>
 
 <template>
-<div class="min-h-screen bg-gray-950 text-white">
-
-    <Navbar />
-
-    <!-- HEADER -->
-    <div class="p-6 border-b border-gray-800">
-        <h1 class="text-2xl font-bold">System Usage Monitor</h1>
-        <p class="text-gray-400 text-sm">
-            Real-time CPU & Memory tracking
-        </p>
-    </div>
-
-    <!-- CHART -->
     <div class="p-6">
+
+        <!-- HEADER -->
+        <div class="border-b border-gray-800 mb-4 pb-2">
+            <h1 class="text-2xl font-bold">System Usage Monitor</h1>
+            <p class="text-gray-400 text-sm">
+                Real-time CPU & Memory tracking
+            </p>
+        </div>
+
+        <!-- CHART -->
         <div class="bg-gray-900 p-4 rounded h-[350px]">
             <canvas ref="chartRef"></canvas>
         </div>
-    </div>
 
-</div>
+    </div>
 </template>

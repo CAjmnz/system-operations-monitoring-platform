@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\SystemDashboardController;
 use App\Http\Controllers\LogController;
-use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,32 +21,39 @@ Route::get('/', function () {
     ]);
 });
 
-// Dashboard page (cards default page)
+// Dashboard
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// System logs page (Vue page)
-Route::get('/system/logs', function () {
-    return Inertia::render('SystemLogs');
-})->middleware(['auth'])->name('logs.page');
+// System Usage
 Route::get('/system/usage', function () {
     return Inertia::render('SystemUsage');
 })->middleware(['auth'])->name('usage.page');
 
+// System Logs
+Route::get('/system/logs', function () {
+    return Inertia::render('SystemLogs');
+})->middleware(['auth'])->name('logs.page');
+
 
 /*
 |--------------------------------------------------------------------------
-| API ROUTES (FOR AXIOS)
+| API ROUTES (FOR AXIOS ONLY)
 |--------------------------------------------------------------------------
 */
 
+// Logs
 Route::get('/api/logs', [LogController::class, 'index']);
+Route::post('/api/logs', [LogController::class, 'store']);
+
+// Dashboard metrics
 Route::get('/system/dashboard', [SystemDashboardController::class, 'index']);
+
 
 /*
 |--------------------------------------------------------------------------
-| AUTH
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
 

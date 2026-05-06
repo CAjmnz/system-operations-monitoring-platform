@@ -2,19 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Models\Log;
+
 class LogController extends Controller
 {
+    // GET logs
     public function index()
     {
-        $logs = [
-            ['level' => 'INFO', 'message' => 'System started successfully'],
-            ['level' => 'WARNING', 'message' => 'CPU usage increasing'],
-            ['level' => 'ERROR', 'message' => 'Disk read latency detected'],
-            ['level' => 'INFO', 'message' => 'User login detected'],
-        ];
+        return response()->json([
+            'logs' => Log::latest()->get()
+        ]);
+    }
+
+    // POST log (manual/system logs)
+    public function store(Request $request)
+    {
+        $request->validate([
+            'level' => 'required',
+            'message' => 'required'
+        ]);
+
+        Log::create([
+            'level' => $request->level,
+            'message' => $request->message
+        ]);
 
         return response()->json([
-            'logs' => $logs
+            'status' => 'ok'
         ]);
     }
 }

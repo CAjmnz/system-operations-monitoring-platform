@@ -1,8 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import Navbar from '@/Components/Navbar.vue'
+import AppLayout from '@/Layouts/AppLayout.vue'
 import SystemCard from '@/Components/SystemCard.vue'
+
+defineOptions({
+    layout: AppLayout
+})
 
 const serverStatus = ref('')
 const cpuUsage = ref(0)
@@ -24,17 +28,13 @@ onMounted(fetchData)
 </script>
 
 <template>
-<div class="min-h-screen bg-gray-950 text-white">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-    <Navbar />
-
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <SystemCard title="Server Status" :value="serverStatus" />
-        <SystemCard title="CPU Usage" :value="cpuUsage + '%'" />
-        <SystemCard title="Memory Usage" :value="memoryUsage + '%'" />
-        <SystemCard title="Active Users" :value="activeUsers" />
-        <SystemCard title="System Alerts" :value="alerts" />
-    </div>
+    <SystemCard title="Server Status" :value="serverStatus" />
+    <SystemCard title="CPU Usage" :value="cpuUsage + '%'" />
+    <SystemCard title="Memory Usage" :value="memoryUsage + '%'" />
+    <SystemCard title="Active Users" :value="activeUsers" />
+    <SystemCard title="System Alerts" :value="alerts" />
 
 </div>
 </template>
