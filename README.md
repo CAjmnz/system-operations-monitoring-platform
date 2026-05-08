@@ -34,6 +34,8 @@ Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue
  
 ---
 
+---
+
 ## ✨ Features
 
 ### 🔐 Authentication System
@@ -97,7 +99,7 @@ Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue
 ---
 
 ## 📁 Project Structure
-```
+
 app/
 ├── Http/
 │   └── Controllers/
