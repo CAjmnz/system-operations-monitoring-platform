@@ -1,22 +1,30 @@
 # 🖥️ System Operations Monitoring Platform
-  
-A real-time system monitoring dashboard built with **Laravel + Vue 3 (Inertia.js)** featuring live metrics, log streaming, charts, and filtering capabilities.
- 
+
+![Laravel](https://img.shields.io/badge/Laravel-10+-red)
+![Vue](https://img.shields.io/badge/Vue-3-42b883)
+![Inertia](https://img.shields.io/badge/Inertia.js-Enabled-purple)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-Styled-38bdf8)
+![License](https://img.shields.io/badge/Status-Portfolio%20Project-blue)
+
+A real-time **system monitoring dashboard** built with **Laravel + Vue 3 (Inertia.js)** featuring live metrics, logs, authentication, and role-based access control.
+
 ---
- 
-## 🚀 Project Overview
- 
-This project simulates a server monitoring system that displays:
- 
+
+## 🚀 Overview
+
+This project simulates a server monitoring system with real-time UI updates and authentication.
+
+### 📊 It tracks:
 - CPU usage
 - Memory usage
 - Active users
 - System alerts
 - Live logs
-- Historical performance charts
+- Performance history charts
+
 ---
- 
-## 🧠 System Architecture
+
+## 🧠 Architecture
  
 ```
 Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue 3 Frontend Dashboard → Chart.js + Reactive UI
@@ -24,46 +32,71 @@ Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue
  
 ---
  
+---
+
 ## ✨ Features
- 
+
+### 🔐 Authentication System
+- User registration (validated + secure)
+- Login with rate limiting (brute-force protection)
+- Logout with session invalidation
+- Role-based access control (admin/user)
+- Redirect-safe authentication flow
+
+---
+
 ### 📊 System Monitoring
 - CPU usage tracking
 - Memory usage tracking
-- Active user count
+- Active user monitoring
 - Server status indicator
 - System alerts
-### 📈 Data Visualization
-- Real-time line chart (Chart.js)
-- CPU history tracking
-- Memory history tracking
-- Auto-updating graph every few seconds
-### 📜 Live Logs System
-- Live system logs feed
-- Auto-refresh polling system
-- Color-coded logs (`INFO` / `WARNING` / `ERROR`)
-### 🔍 Log Filtering System
-- Filter by log level
-- Search logs by keyword
-- Combined filtering
+
 ---
- 
+
+### 📈 Real-Time Charts
+- Chart.js integration
+- CPU & memory visualization
+- Auto-refresh every few seconds
+- Stores last 10 data points
+
+---
+
+### 📜 Live Logs System
+- Real-time logs feed
+- Auto-refresh polling
+- Log levels: INFO / WARNING / ERROR
+- Color-coded UI logs
+
+---
+
+### 🔍 Log Filtering
+- Filter by log level
+- Keyword search
+- Combined filtering system
+
+---
+
 ## 🛠️ Tech Stack
- 
-**Backend**
+
+### Backend
 - Laravel 10+
-- Broadcasting (Events)
 - REST API
-**Frontend**
+- Laravel Events (broadcast-ready)
+- Rate Limiter (security)
+
+### Frontend
 - Vue 3 (Composition API)
 - Inertia.js
 - Axios
 - Chart.js
-**Styling**
+
+### Styling
 - Tailwind CSS
+
 ---
- 
+
 ## 📁 Project Structure
- 
 ```
 app/
 ├── Http/
