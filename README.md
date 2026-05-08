@@ -206,7 +206,22 @@ class LogCreated implements ShouldBroadcast
 - No authentication enforced on API endpoints
 - Chart limited to the last 10 data points
 ---
- 
+
+ ---
+
+## ⚙️ API Endpoints
+
+### 📊 System Metrics
+`GET /system/dashboard`
+
+```json
+{
+  "server_status": "Online",
+  "cpu_usage": "12%",
+  "memory_usage": "48%",
+  "active_users": 10,
+  "alerts": "System running normally"
+}
 ## 🚀 Future Improvements
  
 - 🔥 Replace polling with WebSockets (Pusher / Soketi)
