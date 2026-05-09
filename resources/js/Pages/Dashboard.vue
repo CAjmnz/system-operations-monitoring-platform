@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import SystemCard from '@/Components/SystemCard.vue'
 
 defineOptions({
     layout: AppLayout
@@ -15,26 +14,47 @@ const activeUsers = ref(0)
 const alerts = ref('')
 
 const fetchData = async () => {
-    const res = await axios.get('/system/dashboard')
+    try {
+        const res = await axios.get('/system/dashboard')
 
-    serverStatus.value = res.data.server_status
-    cpuUsage.value = res.data.cpu_usage
-    memoryUsage.value = res.data.memory_usage
-    activeUsers.value = res.data.active_users
-    alerts.value = res.data.alerts
+        serverStatus.value = res.data.server_status
+        cpuUsage.value = res.data.cpu_usage
+        memoryUsage.value = res.data.memory_usage
+        activeUsers.value = res.data.active_users
+        alerts.value = res.data.alerts
+    } catch (err) {
+        console.error('Dashboard fetch error:', err)
+    }
 }
 
-onMounted(fetchData)
+onMounted(() => {
+    fetchData()
+    setInterval(fetchData, 3000)
+})
 </script>
 
 <template>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 
-    <SystemCard title="Server Status" :value="serverStatus" />
-    <SystemCard title="CPU Usage" :value="cpuUsage + '%'" />
-    <SystemCard title="Memory Usage" :value="memoryUsage + '%'" />
-    <SystemCard title="Active Users" :value="activeUsers" />
-    <SystemCard title="System Alerts" :value="alerts" />
+    <div class="p-4 bg-gray-900 rounded">
+        Server: {{ serverStatus }}
+    </div>
+
+    <div class="p-4 bg-gray-900 rounded">
+        CPU: {{ cpuUsage }}%
+    </div>
+
+    <div class="p-4 bg-gray-900 rounded">
+        Memory: {{ memoryUsage }}%
+    </div>
+
+    <div class="p-4 bg-gray-900 rounded">
+        Users: {{ activeUsers }}
+    </div>
+
+    <div class="p-4 bg-gray-900 rounded">
+        Alerts: {{ alerts }}
+    </div>
 
 </div>
 </template>

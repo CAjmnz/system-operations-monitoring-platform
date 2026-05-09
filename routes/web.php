@@ -2,59 +2,76 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+
+use App\Http\Controllers\Pages\DashboardController;
+use App\Http\Controllers\Pages\SystemUsageController;
+use App\Http\Controllers\Pages\SystemLogsController;
 use App\Http\Controllers\SystemDashboardController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
-| INERTIA PAGES (FRONTEND ROUTES)
+| GUEST ROUTES
 |--------------------------------------------------------------------------
 */
 
-// Welcome page
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
+        'canLogin' => true,
+        'canRegister' => true,
         'laravelVersion' => app()->version(),
         'phpVersion' => PHP_VERSION,
     ]);
+})->middleware('guest');
+
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES (CLEAN — NO CLOSURE LOGIN)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('guest')->group(function () {
+
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+
+    // ✅ FIXED: direct controller method
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-// Dashboard
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// System Usage
-Route::get('/system/usage', function () {
-    return Inertia::render('SystemUsage');
-})->middleware(['auth'])->name('usage.page');
-
-// System Logs
-Route::get('/system/logs', function () {
-    return Inertia::render('SystemLogs');
-})->middleware(['auth'])->name('logs.page');
-
-
 /*
 |--------------------------------------------------------------------------
-| API ROUTES (FOR AXIOS ONLY)
+| AUTHENTICATED ROUTES
 |--------------------------------------------------------------------------
 */
 
-// Logs
-Route::get('/api/logs', [LogController::class, 'index']);
-Route::post('/api/logs', [LogController::class, 'store']);
+Route::middleware('auth')->group(function () {
 
-// Dashboard metrics
-Route::get('/system/dashboard', [SystemDashboardController::class, 'index']);
+    Route::get('dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
+    Route::get('system/usage', [SystemUsageController::class, 'index'])
+        ->middleware('userType:admin')
+        ->name('system.usage');
 
-/*
-|--------------------------------------------------------------------------
-| AUTH ROUTES
-|--------------------------------------------------------------------------
-*/
+    Route::get('system/logs', [SystemLogsController::class, 'index'])
+        ->name('system.logs');
 
-require __DIR__.'/auth.php';
+    Route::get('system/dashboard', [SystemDashboardController::class, 'index'])
+        ->name('api.metrics');
+
+    Route::prefix('api')->group(function () {
+        Route::get('logs', [LogController::class, 'index']);
+        Route::post('logs', [LogController::class, 'store']);
+    });
+
+    Route::post('logout', [AuthController::class, 'logout'])
+        ->name('logout');
+});
