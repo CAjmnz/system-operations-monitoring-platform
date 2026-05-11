@@ -12,8 +12,7 @@ class RedirectIfAuthenticated
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Authenticated users are sent to the dashboard, not '/login'.
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {

@@ -1,12 +1,6 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
-
 use App\Http\Controllers\Pages\DashboardController;
 use App\Http\Controllers\Pages\SystemUsageController;
 use App\Http\Controllers\Pages\SystemLogsController;
@@ -20,30 +14,29 @@ use App\Http\Controllers\Auth\AuthController;
 |--------------------------------------------------------------------------
 */
 
+// FIXED: removed ->middleware('guest') so logged-in users can also visit '/'
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => true,
-        'canRegister' => true,
+        'canLogin'      => true,
+        'canRegister'   => true,
         'laravelVersion' => app()->version(),
-        'phpVersion' => PHP_VERSION,
+        'phpVersion'    => PHP_VERSION,
     ]);
-})->middleware('guest');
+})->name('home');
+
+// FIXED: GET /login just redirects to '/' — modal-only system
+Route::get('/login', function () {
+    return redirect('/');
+})->name('login');
 
 /*
 |--------------------------------------------------------------------------
-| AUTH ROUTES (CLEAN — NO CLOSURE LOGIN)
+| AUTH POST ROUTES (guest only)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('guest')->group(function () {
-
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-
-    // ✅ FIXED: direct controller method
-    Route::post('/login', [AuthController::class, 'login']);
-
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
 });
 
 /*
@@ -51,9 +44,7 @@ Route::middleware('guest')->group(function () {
 | AUTHENTICATED ROUTES
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
-
     Route::get('dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
