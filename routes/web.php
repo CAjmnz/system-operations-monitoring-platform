@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Pages\DashboardController;
@@ -10,33 +11,36 @@ use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
-| GUEST ROUTES
+| PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
 
-// FIXED: removed ->middleware('guest') so logged-in users can also visit '/'
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin'      => true,
-        'canRegister'   => true,
+        'canLogin'       => true,
+        'canRegister'    => true,
         'laravelVersion' => app()->version(),
-        'phpVersion'    => PHP_VERSION,
+        'phpVersion'     => PHP_VERSION,
     ]);
 })->name('home');
 
-// FIXED: GET /login just redirects to '/' — modal-only system
+// Safety redirect — no name, just prevents 404 on GET /login
 Route::get('/login', function () {
     return redirect('/');
-})->name('login');
+});
 
 /*
 |--------------------------------------------------------------------------
-| AUTH POST ROUTES (guest only)
+| GUEST-ONLY AUTH ROUTES
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login');
+
+    Route::post('/register', [AuthController::class, 'register'])
+        ->name('register');
 });
 
 /*
@@ -44,7 +48,9 @@ Route::middleware('guest')->group(function () {
 | AUTHENTICATED ROUTES
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('auth')->group(function () {
+
     Route::get('dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
