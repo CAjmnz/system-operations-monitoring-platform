@@ -11,41 +11,35 @@ use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC ROUTES
+| PUBLIC
 |--------------------------------------------------------------------------
 */
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin'       => true,
-        'canRegister'    => true,
+        'canLogin' => true,
+        'canRegister' => true,
         'laravelVersion' => app()->version(),
-        'phpVersion'     => PHP_VERSION,
+        'phpVersion' => PHP_VERSION,
     ]);
 })->name('home');
 
-// Safety redirect — no name, just prevents 404 on GET /login
-Route::get('/login', function () {
-    return redirect('/');
-});
+Route::get('/login', fn () => redirect('/'));
 
 /*
 |--------------------------------------------------------------------------
-| GUEST-ONLY AUTH ROUTES
+| GUEST AUTH
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('guest')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])
-        ->name('login');
-
-    Route::post('/register', [AuthController::class, 'register'])
-        ->name('register');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
 });
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
 

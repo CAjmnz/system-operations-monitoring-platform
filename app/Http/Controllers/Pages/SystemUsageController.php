@@ -11,11 +11,8 @@ class SystemUsageController extends Controller
     public function index()
     {
         return Inertia::render('SystemUsage', [
-
-            // TOTAL REQUEST COUNT
             'totalRequests' => SystemUsage::count(),
 
-            // LATEST LOGS
             'latest' => SystemUsage::latest()
                 ->take(20)
                 ->get()

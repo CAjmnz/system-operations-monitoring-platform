@@ -4,19 +4,22 @@ import axios from 'axios'
 import Chart from 'chart.js/auto'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
-defineOptions({
-    layout: AppLayout
-})
+defineOptions({ layout: AppLayout })
 
 // ================= STATE =================
 const cpuHistory = ref([])
 const memoryHistory = ref([])
+const alerts = ref([])
+const systemStatus = ref('HEALTHY')
+
 const chartRef = ref(null)
 
 let chartInstance = null
 let interval = null
 
-// ================= FETCH DATA =================
+const historyLimit = 50
+
+// ================= FETCH =================
 const fetchData = async () => {
     try {
         const res = await axios.get('/system/dashboard')
@@ -24,58 +27,36 @@ const fetchData = async () => {
         const cpu = Number(res.data.cpu_usage)
         const mem = Number(res.data.memory_usage)
 
-        // IMMUTABLE UPDATE (SAFE FOR VUE + CHART.JS)
-        if (!isNaN(cpu)) {
-            cpuHistory.value = [...cpuHistory.value, cpu].slice(-10)
-        }
+        cpuHistory.value = [...cpuHistory.value, cpu].slice(-historyLimit)
+        memoryHistory.value = [...memoryHistory.value, mem].slice(-historyLimit)
 
-        if (!isNaN(mem)) {
-            memoryHistory.value = [...memoryHistory.value, mem].slice(-10)
-        }
+        alerts.value = res.data.alerts
+        systemStatus.value = res.data.status
 
         updateChart()
 
     } catch (err) {
-        console.error('System usage fetch error:', err)
+        console.error(err)
     }
 }
 
-// ================= UPDATE CHART =================
-const updateChart = () => {
-    if (!chartInstance) return
-
-    const cpuData = cpuHistory.value.slice()
-    const memData = memoryHistory.value.slice()
-
-    chartInstance.data.labels = cpuData.map((_, i) => i + 1)
-
-    chartInstance.data.datasets[0].data = [...cpuData]
-    chartInstance.data.datasets[1].data = [...memData]
-
-    chartInstance.update()
-}
-
-// ================= INIT CHART =================
+// ================= CHART =================
 const initChart = () => {
-    if (!chartRef.value) return
-
     chartInstance = new Chart(chartRef.value, {
         type: 'line',
         data: {
             labels: [],
             datasets: [
                 {
-                    label: 'CPU Usage (%)',
+                    label: 'CPU (%)',
                     data: [],
                     borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239,68,68,0.1)',
                     tension: 0.3
                 },
                 {
-                    label: 'Memory Usage (%)',
+                    label: 'Memory (%)',
                     data: [],
                     borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
                     tension: 0.3
                 }
             ]
@@ -84,22 +65,25 @@ const initChart = () => {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    labels: {
-                        color: '#fff'
-                    }
-                }
+                legend: { labels: { color: '#fff' } }
             },
             scales: {
-                x: {
-                    ticks: { color: '#9ca3af' }
-                },
-                y: {
-                    ticks: { color: '#9ca3af' }
-                }
+                x: { ticks: { color: '#9ca3af' } },
+                y: { ticks: { color: '#9ca3af' } }
             }
         }
     })
+}
+
+const updateChart = () => {
+    if (!chartInstance) return
+
+    chartInstance.data.labels = cpuHistory.value.map((_, i) => i + 1)
+
+    chartInstance.data.datasets[0].data = cpuHistory.value
+    chartInstance.data.datasets[1].data = memoryHistory.value
+
+    chartInstance.update()
 }
 
 // ================= LIFECYCLE =================
@@ -111,28 +95,43 @@ onMounted(() => {
 
 onUnmounted(() => {
     clearInterval(interval)
-    if (chartInstance) {
-        chartInstance.destroy()
-        chartInstance = null
-    }
+    chartInstance?.destroy()
 })
 </script>
 
 <template>
-    <div class="p-6">
+<div class="p-6 text-white">
 
-        <!-- HEADER -->
-        <div class="border-b border-gray-800 mb-4 pb-2">
-            <h1 class="text-2xl font-bold">System Usage Monitor</h1>
-            <p class="text-gray-400 text-sm">
-                Real-time CPU & Memory tracking
-            </p>
-        </div>
-
-        <!-- CHART -->
-        <div class="bg-gray-900 p-4 rounded h-[350px]">
-            <canvas ref="chartRef"></canvas>
-        </div>
-
+    <!-- STATUS -->
+    <div class="bg-gray-900 p-4 rounded mb-4">
+        <h2 class="text-lg font-bold">
+            System Status:
+            <span :class="systemStatus === 'HEALTHY' ? 'text-green-400' : 'text-red-400'">
+                {{ systemStatus }}
+            </span>
+        </h2>
     </div>
+
+    <!-- ALERTS -->
+    <div class="bg-gray-900 p-4 rounded mb-4">
+        <h2 class="text-lg font-bold mb-2">Live Alerts</h2>
+
+        <div v-if="alerts.length === 0" class="text-gray-400">
+            No active alerts
+        </div>
+
+        <div v-for="(a, i) in alerts" :key="i"
+             class="p-2 mb-2 rounded"
+             :class="a.level === 'CRITICAL' ? 'bg-red-600' : 'bg-yellow-600'">
+
+            <strong>{{ a.level }}</strong> - {{ a.message }}
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="bg-gray-900 p-4 rounded h-[350px]">
+        <canvas ref="chartRef"></canvas>
+    </div>
+
+</div>
 </template>

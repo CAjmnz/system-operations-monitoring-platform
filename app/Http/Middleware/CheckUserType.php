@@ -14,11 +14,16 @@ class CheckUserType
         $user = Auth::user();
 
         if (!$user) {
-            return redirect('/');
+            abort(401, 'Unauthenticated');
         }
 
-        // if usertype not allowed → block
-        if (!in_array($user->usertype, $types)) {
+        // normalize usertype (VERY IMPORTANT FIX)
+        $userType = strtolower(trim($user->usertype));
+
+        // normalize allowed types
+        $allowedTypes = array_map(fn($type) => strtolower(trim($type)), $types);
+
+        if (!in_array($userType, $allowedTypes)) {
             abort(403, 'Unauthorized access');
         }
 
