@@ -4,96 +4,86 @@
 ![Vue](https://img.shields.io/badge/Vue-3-42b883)
 ![Inertia](https://img.shields.io/badge/Inertia.js-Enabled-purple)
 ![Tailwind](https://img.shields.io/badge/TailwindCSS-Styled-38bdf8)
-![License](https://img.shields.io/badge/Status-Portfolio%20Project-blue)
+![Status](https://img.shields.io/badge/Project-Portfolio-blue)
 
-A real-time **system monitoring dashboard** built with **Laravel + Vue 3 (Inertia.js)** featuring live metrics, logs, authentication, and role-based access control.
+A real-time system monitoring dashboard built with Laravel + Vue 3 (Inertia.js) that tracks system performance, logs, and alerts with near real-time updates.
 
 ---
 
 ## 🚀 Overview
 
-This project simulates a server monitoring system with real-time UI updates and authentication.
+This project simulates a server monitoring system with live metrics and system visibility features.
 
-### 📊 It tracks:
-- CPU usage
-- Memory usage
-- Active users
-- System alerts
-- Live logs
-- Performance history charts
+It tracks:
+- CPU usage  
+- Memory usage  
+- Active users  
+- System alerts  
+- System logs  
+- Performance history (charts)  
 
 ---
 
 ## 🧠 Architecture
- 
-```
-Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue 3 Frontend Dashboard → Chart.js + Reactive UI
-```
- 
----
- 
----
+
+Laravel Backend (Controllers + Middleware + API Routes)  
+→ REST API Layer (/system/dashboard, /api/logs)  
+→ Vue 3 Frontend (Inertia.js)  
+→ Reactive UI + Polling System (3s interval)  
+→ Chart.js Visualization + Alert System  
 
 ---
 
 ## ✨ Features
 
-### 🔐 Authentication System
-- User registration (validated + secure)
-- Login with rate limiting (brute-force protection)
-- Logout with session invalidation
-- Role-based access control (admin/user)
-- Redirect-safe authentication flow
+### Authentication System
+- Login / logout
+- Session-based auth
+- Role-based access (admin/user)
+- Protected routes
 
----
-
-### 📊 System Monitoring
+### System Monitoring
 - CPU usage tracking
 - Memory usage tracking
-- Active user monitoring
-- Server status indicator
-- System alerts
+- Active users tracking
+- Server status (ONLINE / DEGRADED / OFFLINE)
+- Threshold-based alerts
 
----
+### Alert System
+- Auto-generated alerts
+- Levels: INFO / WARNING / CRITICAL
+- Auto-resolve when system normalizes
+- Cache-based cooldown (prevents spam alerts)
 
-### 📈 Real-Time Charts
+### System Logs
+- Live log viewing
+- Manual log creation (testing)
+- Levels: INFO / WARNING / ERROR
+- Filter + search support
+
+### Real-Time Charts
 - Chart.js integration
-- CPU & memory visualization
-- Auto-refresh every few seconds
-- Stores last 10 data points
-
----
-
-### 📜 Live Logs System
-- Real-time logs feed
-- Auto-refresh polling
-- Log levels: INFO / WARNING / ERROR
-- Color-coded UI logs
-
----
-
-### 🔍 Log Filtering
-- Filter by log level
-- Keyword search
-- Combined filtering system
+- CPU + Memory history
+- Auto-refresh every 3 seconds
+- Stores last 50 data points
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
+Backend:
 - Laravel 10+
 - REST API
-- Laravel Events (broadcast-ready)
-- Rate Limiter (security)
+- Middleware logging system
+- MySQL
 
-### Frontend
+Frontend:
 - Vue 3 (Composition API)
 - Inertia.js
 - Axios
 - Chart.js
 
-### Styling
+UI:
 - Tailwind CSS
 
 ---
@@ -102,170 +92,36 @@ Laravel Backend → REST API + Broadcasting Events → Inertia.js Bridge → Vue
 
 app/
 ├── Http/
-│   └── Controllers/
-│       ├── SystemDashboardController.php
-│       └── LogController.php
-└── Events/
-    └── LogCreated.php
- 
+│   ├── Controllers/
+│   │   ├── SystemDashboardController.php
+│   │   ├── LogController.php
+│   │   └── Pages/
+│   └── Middleware/
+│       └── LogSystemUsage.php
+├── Models/
+│   ├── SystemAlert.php
+│   ├── SystemUsage.php
+│   └── SystemLog.php
+
 resources/
 └── js/
     ├── Pages/
-    │   └── Dashboard.vue
+    │   ├── Dashboard.vue
+    │   ├── SystemUsage.vue
+    │   └── SystemLogs.vue
     ├── Components/
-    │   └── SystemCard.vue
-    ├── bootstrap.js
     └── app.js
-```
- 
----
- 
-## ⚙️ API Endpoints
- 
-### 📊 `GET /system/dashboard`
- 
-Returns current system metrics.
- 
-```json
-{
-  "server_status": "Online",
-  "cpu_usage": "12%",
-  "memory_usage": "48%",
-  "active_users": 10,
-  "alerts": "System running normally"
-}
-```
- 
-### 📜 `GET /system/logs`
- 
-Returns recent system logs.
- 
-```json
-{
-  "logs": [
-    {
-      "level": "INFO",
-      "message": "System started successfully"
-    }
-  ]
-}
-```
- 
-### 📡 Real-Time Broadcasting (Optional Upgrade)
- 
-The `LogCreated` event is ready for WebSocket integration via Pusher or Soketi.
- 
-```php
-class LogCreated implements ShouldBroadcast
-{
-    public $message;
- 
-    public function __construct($message)
-    {
-        $this->message = $message;
-    }
- 
-    public function broadcastOn()
-    {
-        return new Channel('logs');
-    }
- 
-    public function broadcastAs()
-    {
-        return 'log.created';
-    }
-}
-```
- 
----
- 
-## 🧩 Frontend Dashboard
- 
-**Core features:**
-- Reactive state using `ref()`
-- Computed filtering system
-- Chart.js real-time updates
-- Polling system via `setInterval`
-- Axios API integration
-**Chart system:**
-- Library: Chart.js
-- Type: Line chart
-- Tracks: CPU usage history and memory usage history
-- Updates every 3 seconds
-- Stores last 10 data points
-**Log filtering:**
-- Filter by level: `ALL` / `INFO` / `WARNING` / `ERROR`
-- Keyword search
-- Driven by a reactive computed property
----
-  
-## ⚠️ Known Limitations
- 
-- Uses polling instead of full WebSockets (upgrade path is ready)
-- Logs stored in memory, not persisted to a database
-- No authentication enforced on API endpoints
-- Chart limited to the last 10 data points
----
 
- ---
+---
 
 ## ⚙️ API Endpoints
 
-### 📊 System Metrics
-`GET /system/dashboard`
-
+### GET /system/dashboard
 ```json
 {
-  "server_status": "Online",
-  "cpu_usage": "12%",
-  "memory_usage": "48%",
-  "active_users": 10,
-  "alerts": "System running normally"
+  "server_status": "DEGRADED",
+  "cpu_usage": 88,
+  "memory_usage": 55,
+  "active_users": 0,
+  "alerts": []
 }
-## 🚀 Future Improvements
- 
-- 🔥 Replace polling with WebSockets (Pusher / Soketi)
-- 🗄️ Store logs in a database
-- 🔐 Add authentication and admin roles
-- 📊 Advanced analytics dashboard
-- 📱 Mobile-responsive redesign
-- 📡 Real server metrics integration
----
- 
-## 🧪 Setup Instructions
- 
-```bash
-# 1. Clone the repository
-git clone https://github.com/CAjmnz/system-operations-monitoring-platform.git
-cd your-repo
- 
-# 2. Install dependencies
-composer install
-npm install
- 
-# 3. Set up environment
-cp .env.example .env
-php artisan key:generate
- 
-# 4. Run migrations
-php artisan migrate
- 
-# 5. Start development servers
-php artisan serve
-npm run dev
-```
- 
----
- 
-## 🧑‍💻 About
- 
-Developed as a system programming portfolio project, focusing on:
- 
-- Backend API design
-- Frontend reactivity with Vue 3
-- Real-time monitoring systems
-- Full-stack architecture
----
- 
-> 📌 This project is for educational and portfolio purposes.
- 
