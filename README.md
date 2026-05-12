@@ -116,12 +116,65 @@ resources/
 
 ## ⚙️ API Endpoints
 
-### GET /system/dashboard
-```json
-{
-  "server_status": "DEGRADED",
-  "cpu_usage": 88,
-  "memory_usage": 55,
-  "active_users": 0,
-  "alerts": []
-}
+GET /api/logs
+[
+  {
+    "id": 1,
+    "level": "INFO",
+    "message": "System initialized",
+    "created_at": "2026-05-12 10:00:00"
+  }
+]
+
+🚨 Alerts Behavior
+CPU ≥ 70% → WARNING
+CPU ≥ 90% → CRITICAL
+Memory thresholds similar
+Auto-resolves when values normalize
+
+🧩 Frontend Behavior
+Polling every 3 seconds
+Vue reactive state
+Chart.js live updates
+Alert rendering system
+Computed UI status colors
+
+⚠️ Known Limitations
+No WebSockets (polling only)
+Logs are not real-time streaming
+Metrics are simulated (not real OS metrics)
+No analytics persistence layer
+
+🚀 Future Improvements
+WebSockets (Laravel Reverb / Pusher)
+Event-driven architecture upgrade
+Real system metrics integration
+Advanced analytics dashboard
+Mobile UI optimization
+Stronger RBAC system
+
+🧪 Setup Instructions
+
+git clone https://github.com/CAjmnz/system-operations-monitoring-platform.git
+cd system-operations-monitoring-platform
+
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+
+php artisan migrate
+
+php artisan serve
+npm run dev
+
+🧑‍💻 About
+Built for learning system design and full-stack architecture using:
+
+Laravel backend engineering
+Vue 3 reactive UI design
+Real-time monitoring concepts
+Event-driven system thinking
+
+📌 Educational / Portfolio Project
