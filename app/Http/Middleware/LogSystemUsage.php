@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\SystemUsage;
+use App\Models\SystemLog;
 
 class LogSystemUsage
 {
@@ -12,12 +12,16 @@ class LogSystemUsage
     {
         $response = $next($request);
 
-        SystemUsage::create([
-            'user_id' => optional($request->user())->id,
-            'route' => $request->path(),
-            'method' => $request->method(),
-            'ip_address' => $request->ip(),
-        ]);
+        if ($request->user()) {
+            SystemLog::create([
+                'user_id'    => $request->user()->id,
+                'route'      => $request->path(),
+                'method'     => $request->method(),
+                'ip_address' => $request->ip(),
+                'level'      => 'INFO',
+                'message'    => 'User accessed ' . $request->path(),
+            ]);
+        }
 
         return $response;
     }

@@ -9,12 +9,6 @@ use App\Http\Controllers\SystemDashboardController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\Auth\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| PUBLIC
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => true,
@@ -26,43 +20,26 @@ Route::get('/', function () {
 
 Route::get('/login', fn () => redirect('/'));
 
-/*
-|--------------------------------------------------------------------------
-| GUEST AUTH
-|--------------------------------------------------------------------------
-*/
-
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
 });
 
-/*
-|--------------------------------------------------------------------------
-| AUTH ROUTES
-|--------------------------------------------------------------------------
-*/
-
 Route::middleware('auth')->group(function () {
 
-    Route::get('dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('system/usage', [SystemUsageController::class, 'index'])
+    Route::get('/system/usage', [SystemUsageController::class, 'index'])
         ->middleware('userType:admin')
         ->name('system.usage');
 
-    Route::get('system/logs', [SystemLogsController::class, 'index'])
+    Route::get('/system/logs', [SystemLogsController::class, 'index'])
+        ->middleware('userType:admin')
         ->name('system.logs');
 
-    Route::get('system/dashboard', [SystemDashboardController::class, 'index'])
-        ->name('api.metrics');
+    Route::get('/system/dashboard', [SystemDashboardController::class, 'index']);
 
-    Route::prefix('api')->group(function () {
-        Route::get('logs', [LogController::class, 'index']);
-        Route::post('logs', [LogController::class, 'store']);
-    });
+    
 
-    Route::post('logout', [AuthController::class, 'logout'])
-        ->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

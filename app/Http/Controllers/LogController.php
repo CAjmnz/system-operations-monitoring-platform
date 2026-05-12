@@ -2,34 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SystemLog;
 use Illuminate\Http\Request;
-use App\Models\Log;
 
 class LogController extends Controller
 {
-    // GET logs
     public function index()
     {
         return response()->json([
-            'logs' => Log::latest()->get()
+            'logs' => SystemLog::latest()->take(50)->get()
         ]);
     }
 
-    // POST log (manual/system logs)
     public function store(Request $request)
     {
-        $request->validate([
-            'level' => 'required',
-            'message' => 'required'
+        SystemLog::create([
+            'user_id' => $request->user()?->id,
+            'level' => $request->level ?? 'INFO',
+            'message' => $request->message,
+            'route' => $request->path(),
+            'method' => $request->method(),
+            'ip_address' => $request->ip(),
         ]);
 
-        Log::create([
-            'level' => $request->level,
-            'message' => $request->message
-        ]);
-
-        return response()->json([
-            'status' => 'ok'
-        ]);
+        return response()->json(['ok' => true]);
     }
 }

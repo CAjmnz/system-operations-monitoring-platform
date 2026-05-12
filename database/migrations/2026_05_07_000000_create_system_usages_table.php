@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('system_usages', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('route');
             $table->string('method');
             $table->string('ip_address');

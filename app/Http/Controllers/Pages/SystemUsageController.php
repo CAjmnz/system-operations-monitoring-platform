@@ -12,19 +12,16 @@ class SystemUsageController extends Controller
     {
         return Inertia::render('SystemUsage', [
             'totalRequests' => SystemUsage::count(),
-
             'latest' => SystemUsage::latest()
                 ->take(20)
                 ->get()
-                ->map(function ($log) {
-                    return [
-                        'id' => $log->id,
-                        'method' => $log->method,
-                        'route' => $log->route,
-                        'ip_address' => $log->ip_address,
-                        'created_at' => $log->created_at->toDateTimeString(),
-                    ];
-                }),
+                ->map(fn ($log) => [
+                    'id' => $log->id,
+                    'method' => $log->method,
+                    'route' => $log->route,
+                    'ip_address' => $log->ip_address,
+                    'created_at' => $log->created_at->toDateTimeString(),
+                ]),
         ]);
     }
 }

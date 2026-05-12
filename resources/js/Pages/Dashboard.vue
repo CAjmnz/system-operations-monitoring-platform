@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
@@ -7,78 +7,48 @@ defineOptions({
     layout: AppLayout
 })
 
-/*
-|--------------------------------------------------------------------------
-| STATE
-|--------------------------------------------------------------------------
-*/
-const serverStatus = ref('OFFLINE')
-const cpuUsage = ref(0)
-const memoryUsage = ref(0)
-const activeUsers = ref(0)
-const alerts = ref('No alerts')
+const dashboard = ref({
+    server_status: 'OFFLINE',
+    cpu_usage: 0,
+    memory_usage: 0,
+    active_users: 0,
+    alerts: []
+})
+
 const loading = ref(true)
 const lastUpdated = ref('')
 
 let interval = null
 
-/*
-|--------------------------------------------------------------------------
-| FETCH DASHBOARD DATA
-|--------------------------------------------------------------------------
-*/
 const fetchData = async () => {
-    try {
-        const res = await axios.get('/system/dashboard')
 
-        serverStatus.value = res.data.server_status
-        cpuUsage.value = res.data.cpu_usage
-        memoryUsage.value = res.data.memory_usage
-        activeUsers.value = res.data.active_users
-        alerts.value = res.data.alerts
+    try {
+
+        const response = await axios.get('/system/dashboard')
+
+        dashboard.value = response.data
 
         lastUpdated.value = new Date().toLocaleTimeString()
-    } catch (err) {
-        console.error('Dashboard fetch error:', err)
+
+    } catch (error) {
+
+        console.error(error)
+
     } finally {
+
         loading.value = false
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| STATUS COLORS
-|--------------------------------------------------------------------------
-*/
-const serverStatusClass = computed(() => {
-    return serverStatus.value === 'Online'
-        ? 'text-green-400'
-        : 'text-red-400'
-})
-
-const cpuClass = computed(() => {
-    if (cpuUsage.value >= 80) return 'text-red-400'
-    if (cpuUsage.value >= 60) return 'text-yellow-400'
-    return 'text-green-400'
-})
-
-const memoryClass = computed(() => {
-    if (memoryUsage.value >= 80) return 'text-red-400'
-    if (memoryUsage.value >= 60) return 'text-yellow-400'
-    return 'text-green-400'
-})
-
-/*
-|--------------------------------------------------------------------------
-| LIFECYCLE
-|--------------------------------------------------------------------------
-*/
 onMounted(() => {
+
     fetchData()
+
     interval = setInterval(fetchData, 3000)
 })
 
 onUnmounted(() => {
+
     clearInterval(interval)
 })
 </script>
@@ -90,20 +60,24 @@ onUnmounted(() => {
     <div class="flex items-center justify-between mb-6">
 
         <div>
+
             <h1 class="text-3xl font-bold">
-                System Dashboard
+                SOC Monitoring Dashboard
             </h1>
 
-            <p class="text-sm text-gray-400 mt-1">
-                Real-time monitoring overview
+            <p class="text-gray-400 text-sm mt-1">
+                Real-time infrastructure monitoring
             </p>
+
         </div>
 
         <div class="text-sm text-gray-400">
-            Last updated:
+
+            Last Updated:
             <span class="text-white">
-                {{ lastUpdated || 'Loading...' }}
+                {{ lastUpdated }}
             </span>
+
         </div>
 
     </div>
@@ -116,115 +90,142 @@ onUnmounted(() => {
         Loading dashboard...
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- MAIN GRID -->
     <div
         v-else
-        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+        class="grid grid-cols-1 lg:grid-cols-3 gap-5"
     >
 
         <!-- SERVER STATUS -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
 
-            <div class="text-sm text-gray-400 mb-2">
-                Server Status
+            <div class="text-gray-400 text-sm mb-2">
+                System Status
             </div>
 
             <div
                 class="text-3xl font-bold"
-                :class="serverStatusClass"
+                :class="{
+                    'text-green-400': dashboard.server_status === 'ONLINE',
+                    'text-yellow-400': dashboard.server_status === 'DEGRADED',
+                    'text-red-400': dashboard.server_status === 'OFFLINE'
+                }"
             >
-                {{ serverStatus }}
+                {{ dashboard.server_status }}
+            </div>
+
+            <div class="mt-3 text-sm text-gray-400">
+
+                <span v-if="dashboard.server_status === 'ONLINE'">
+                    All systems operational
+                </span>
+
+                <span v-else-if="dashboard.server_status === 'DEGRADED'">
+                    Performance degradation detected
+                </span>
+
+                <span v-else>
+                    System outage detected
+                </span>
+
             </div>
 
         </div>
 
         <!-- CPU -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
 
-            <div class="text-sm text-gray-400 mb-2">
+            <div class="text-gray-400 text-sm mb-2">
                 CPU Usage
             </div>
 
-            <div
-                class="text-3xl font-bold"
-                :class="cpuClass"
-            >
-                {{ cpuUsage }}%
+            <div class="text-3xl font-bold text-blue-400">
+                {{ dashboard.cpu_usage }}%
             </div>
 
             <div class="w-full bg-gray-800 rounded-full h-3 mt-4">
+
                 <div
-                    class="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                    :style="{ width: cpuUsage + '%' }"
+                    class="bg-blue-500 h-3 rounded-full"
+                    :style="{ width: dashboard.cpu_usage + '%' }"
                 ></div>
+
             </div>
 
         </div>
 
         <!-- MEMORY -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
 
-            <div class="text-sm text-gray-400 mb-2">
+            <div class="text-gray-400 text-sm mb-2">
                 Memory Usage
             </div>
 
-            <div
-                class="text-3xl font-bold"
-                :class="memoryClass"
-            >
-                {{ memoryUsage }}%
+            <div class="text-3xl font-bold text-purple-400">
+                {{ dashboard.memory_usage }}%
             </div>
 
             <div class="w-full bg-gray-800 rounded-full h-3 mt-4">
+
                 <div
-                    class="bg-purple-500 h-3 rounded-full transition-all duration-500"
-                    :style="{ width: memoryUsage + '%' }"
+                    class="bg-purple-500 h-3 rounded-full"
+                    :style="{ width: dashboard.memory_usage + '%' }"
                 ></div>
+
             </div>
 
         </div>
 
         <!-- ACTIVE USERS -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
 
-            <div class="text-sm text-gray-400 mb-2">
+            <div class="text-gray-400 text-sm mb-2">
                 Active Users
             </div>
 
             <div class="text-3xl font-bold text-cyan-400">
-                {{ activeUsers }}
+                {{ dashboard.active_users }}
             </div>
 
         </div>
 
-        <!-- ALERTS (FIXED UI ONLY) -->
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-lg md:col-span-2 xl:col-span-2">
+        <!-- LIVE ALERTS -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 lg:col-span-2">
 
-            <div class="text-sm text-gray-400 mb-2">
-                Alerts
+            <div class="text-gray-400 text-sm mb-4">
+                Live Alerts
             </div>
 
-            <div class="space-y-2">
+            <!-- NO ALERTS -->
+            <div
+                v-if="dashboard.alerts.length === 0"
+                class="bg-green-900 border border-green-500 text-green-300 rounded p-4"
+            >
+                🟢 No active alerts
+            </div>
 
-                <div
-                    v-if="alerts.includes('CPU') || alerts.includes('cpu')"
-                    class="px-3 py-2 rounded bg-red-900 text-red-300 border border-red-500"
-                >
-                    🔴 {{ alerts }}
+            <!-- ALERTS -->
+            <div
+                v-for="alert in dashboard.alerts"
+                :key="alert.id"
+                class="mb-3 rounded p-4 border"
+                :class="{
+                    'bg-red-900 border-red-500 text-red-300': alert.level === 'CRITICAL',
+                    'bg-yellow-900 border-yellow-500 text-yellow-300': alert.level === 'WARNING',
+                    'bg-green-900 border-green-500 text-green-300': alert.level === 'NORMAL'
+                }"
+            >
+
+                <div class="font-bold text-lg">
+                    {{ alert.level }}
                 </div>
 
-                <div
-                    v-else-if="alerts.includes('Memory') || alerts.includes('memory')"
-                    class="px-3 py-2 rounded bg-yellow-900 text-yellow-300 border border-yellow-500"
-                >
-                    🟡 {{ alerts }}
+                <div class="mt-1">
+                    {{ alert.message }}
                 </div>
 
-                <div
-                    v-else
-                    class="px-3 py-2 rounded bg-green-900 text-green-300 border border-green-500"
-                >
-                    🟢 {{ alerts }}
+                <div class="mt-2 text-xs opacity-70">
+                    {{ alert.created_at }}
                 </div>
 
             </div>
